@@ -6,11 +6,16 @@
 package com.dinosaur.dinosaurexploder.utils;
 
 import com.dinosaur.dinosaurexploder.constants.GameMode;
+import com.dinosaur.dinosaurexploder.progression.BossSpawner;
+import com.dinosaur.dinosaurexploder.progression.EnemySpawner;
+import com.dinosaur.dinosaurexploder.progression.Hud;
+import com.dinosaur.dinosaurexploder.progression.WaveScheduler;
 
 /**
  * This class manages the game levels, including the current level, number of enemies to defeat,
- * enemy spawn rate, and enemy speed. It provides methods to advance levels, reset the game, and
- * check if the player can advance to the next level.
+ * enemy spawn rate, and enemy speed. It is the source of truth for the current level and keeps the
+ * level-dependent gameplay systems (enemy spawner, boss spawner, wave scheduler, HUD) in step as the
+ * level advances and when a new game starts.
  */
 public class LevelManager {
   private int currentLevel = 1;
@@ -24,6 +29,34 @@ public class LevelManager {
   private double asteroidsVerticalSpeed = 0.8;
   private double asteroidsHorizontalSpeed = 0.2;
   private GameMode gameMode = GameMode.NORMAL;
+
+  private final EnemySpawner enemySpawner;
+  private final BossSpawner bossSpawner;
+  private final WaveScheduler waveScheduler;
+  private final Hud hud;
+
+  public LevelManager() {
+    enemySpawner = new EnemySpawner();
+    bossSpawner = new BossSpawner();
+    waveScheduler = new WaveScheduler();
+    hud = new Hud();
+  }
+
+  public EnemySpawner getEnemySpawner() {
+    return enemySpawner;
+  }
+
+  public BossSpawner getBossSpawner() {
+    return bossSpawner;
+  }
+
+  public WaveScheduler getWaveScheduler() {
+    return waveScheduler;
+  }
+
+  public Hud getHud() {
+    return hud;
+  }
 
   public int getCurrentLevel() {
     return currentLevel;
@@ -66,7 +99,7 @@ public class LevelManager {
     return asteroidsSpawnRate;
   }
 
-  public void nextLevel() {
+  private void scaleDifficulty() {
     currentLevel++;
     defeatedEnemies = 0;
     enemiesToDefeat += 5;
@@ -75,6 +108,39 @@ public class LevelManager {
     enemySpawnRate = Math.max(0.3, enemySpawnRate * 0.9);
     enemySpeed += 0.2;
     asteroidsSpawnRate += 0.1;
+  }
+
+  public void nextLevel() {
+    scaleDifficulty();
+    enemySpawner.syncTo(currentLevel);
+    bossSpawner.syncTo(currentLevel);
+    waveScheduler.syncTo(currentLevel);
+    hud.syncTo(currentLevel);
+  }
+
+  /**
+   * Advances the level as a reward for defeating a boss. The player skips straight to the next level
+   * with its enemy target cleared.
+   */
+  public void applyBossReward() {
+    scaleDifficulty();
+    enemySpawner.syncTo(currentLevel);
+    bossSpawner.syncTo(currentLevel);
+  }
+
+  /**
+   * Restores the manager so a newly started game begins from a clean level-one state, discarding any
+   * progression accumulated during a previous game. The configured game mode and boss requirement
+   * are left untouched, as the caller re-applies those for the new game.
+   */
+  public void reset() {
+    currentLevel = 1;
+    enemiesToDefeat = 5;
+    defeatedEnemies = 0;
+    defeatedBosses = 0;
+    enemySpawnRate = 0.75;
+    enemySpeed = 1.5;
+    asteroidsSpawnRate = 1.5;
   }
 
   public int getEnemiesToDefeat() {

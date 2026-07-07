@@ -81,7 +81,13 @@ public class GameInitializer {
 
   public void initGame() {
 
-    levelManager = new LevelManager();
+    // The controller (and therefore this initializer) is reused across games, so reuse the existing
+    // LevelManager and reset it back to a fresh state rather than allocating a new one each game.
+    if (levelManager == null) {
+      levelManager = new LevelManager();
+    } else {
+      levelManager.reset();
+    }
     levelManager.setGameMode(GameData.getSelectedDifficulty()); // Set the difficulty from GameData
     levelManager.setBossesToDefeat(GameData.getSelectedDifficulty() == GameMode.EXPERT ? 2 : 1);
 

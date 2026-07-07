@@ -42,7 +42,7 @@ public class CollisionHandler {
 
   public void handleBossDefeat(ScoreComponent scoreComponent) {
     scoreComponent.incrementScore(levelManager.getCurrentLevel());
-    levelManager.nextLevel();
+    levelManager.applyBossReward();
   }
 
   public boolean isLevelUpAfterBossDefeat(
