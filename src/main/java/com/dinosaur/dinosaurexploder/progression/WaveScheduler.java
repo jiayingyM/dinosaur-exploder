@@ -6,23 +6,29 @@
 package com.dinosaur.dinosaurexploder.progression;
 
 /**
- * Progression view of the wave scheduler: it tracks which level it is scheduling waves for and
- * derives how many enemy waves that level runs. It is kept in step with the game's current level by
- * {@code syncTo(int)}.
+ * Progression view of the wave batch that is currently being played. A batch is armed for a level
+ * when it begins (see {@link #beginWave(int)}); from that point it reports that level and the number
+ * of enemy waves that level runs. Unlike the level-dependent views that must always mirror the
+ * game's current level, an in-progress batch deliberately keeps the level it was armed with for its
+ * whole duration even if the game's level moves on underneath it (for example a boss-reward skip):
+ * the wave the player is fighting does not change identity mid-fight. The batch is only re-armed when
+ * the next batch begins.
  */
 public class WaveScheduler {
-  private int level = 1;
+  private int waveLevel = 1;
 
-  public void syncTo(int level) {
-    this.level = level;
+  /** Arm the scheduler for the wave batch that is now beginning at {@code level}. */
+  public void beginWave(int level) {
+    this.waveLevel = level;
   }
 
+  /** The level of the wave batch currently in progress. */
   public int currentLevel() {
-    return level;
+    return waveLevel;
   }
 
   /** Each level runs one more wave than the last. */
   public int waveCount() {
-    return level;
+    return waveLevel;
   }
 }

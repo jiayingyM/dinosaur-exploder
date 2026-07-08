@@ -121,8 +121,8 @@ public class LevelManager {
     scaleDifficulty();
     enemySpawner.syncTo(currentLevel);
     bossSpawner.syncTo(currentLevel);
-    waveScheduler.syncTo(currentLevel);
     hud.syncTo(currentLevel);
+    waveScheduler.beginWave(currentLevel);
     progressTracker.record(currentLevel);
   }
 
@@ -150,6 +150,7 @@ public class LevelManager {
     enemySpawnRate = 0.75;
     enemySpeed = 1.5;
     asteroidsSpawnRate = 1.5;
+    waveScheduler.beginWave(1);
   }
 
   public int getEnemiesToDefeat() {
