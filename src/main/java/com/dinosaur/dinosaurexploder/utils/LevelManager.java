@@ -9,6 +9,7 @@ import com.dinosaur.dinosaurexploder.constants.GameMode;
 import com.dinosaur.dinosaurexploder.progression.BossSpawner;
 import com.dinosaur.dinosaurexploder.progression.EnemySpawner;
 import com.dinosaur.dinosaurexploder.progression.Hud;
+import com.dinosaur.dinosaurexploder.progression.ProgressTracker;
 import com.dinosaur.dinosaurexploder.progression.WaveScheduler;
 
 /**
@@ -34,12 +35,14 @@ public class LevelManager {
   private final BossSpawner bossSpawner;
   private final WaveScheduler waveScheduler;
   private final Hud hud;
+  private final ProgressTracker progressTracker;
 
   public LevelManager() {
     enemySpawner = new EnemySpawner();
     bossSpawner = new BossSpawner();
     waveScheduler = new WaveScheduler();
     hud = new Hud();
+    progressTracker = new ProgressTracker();
   }
 
   public EnemySpawner getEnemySpawner() {
@@ -56,6 +59,10 @@ public class LevelManager {
 
   public Hud getHud() {
     return hud;
+  }
+
+  public ProgressTracker getProgressTracker() {
+    return progressTracker;
   }
 
   public int getCurrentLevel() {
@@ -116,6 +123,7 @@ public class LevelManager {
     bossSpawner.syncTo(currentLevel);
     waveScheduler.syncTo(currentLevel);
     hud.syncTo(currentLevel);
+    progressTracker.record(currentLevel);
   }
 
   /**
@@ -126,6 +134,7 @@ public class LevelManager {
     scaleDifficulty();
     enemySpawner.syncTo(currentLevel);
     bossSpawner.syncTo(currentLevel);
+    progressTracker.record(currentLevel);
   }
 
   /**
